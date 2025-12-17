@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.routes.js';
 import habitRouter from './routes/habit.routes.js'
+import habitLogRouter from './routes/habitLog.routes.js'
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use(cookieParser())
 
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/habits', habitRouter)
+app.use('/api/v1', habitLogRouter)
 
 export default app
