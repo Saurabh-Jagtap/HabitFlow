@@ -3,7 +3,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Habit } from "../models/habit.models.js";
 import { HabitLog } from "../models/habitLog.models.js";
-import { calculateCurrentStreak } from "../utils/streak.utils.js";
 
 const upsertHabitLog = asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -64,13 +63,11 @@ const getHabitLogs = asyncHandler(async (req, res) => {
 
     const habitLogs = await HabitLog.find({ habitId: habit._id }).sort({ date: 1 });
 
-    const currentStreak = calculateCurrentStreak(habitLogs)
-
     return res.status(200)
         .json(new ApiResponse(
             200,
-            { "HabitId": habit._id, "currentStreak": currentStreak, "logs": habitLogs },
-            "HabitLogs with Streak fetched Successfully!"
+            { "HabitId": habit._id, "logs": habitLogs },
+            "HabitLogs fetched Successfully!"
         ))
 })
 
