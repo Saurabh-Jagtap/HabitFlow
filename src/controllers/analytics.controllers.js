@@ -8,17 +8,17 @@ import { calculateLongestStreak } from "../utils/longestStreak.utils.js";
 
 
 const getHabitAnalytics = asyncHandler(async (req, res) => {
-// perform ownership checks
+    // perform ownership checks
 
-// fetch habitLogs
+    // fetch habitLogs
 
-// call helpers
+    // call helpers
 
-// compute totalCompletions
+    // compute totalCompletions
 
-// return structured response
+    // return structured response
 
-const { id } = req.params;
+    const { id } = req.params;
 
     if (!id) {
         throw new ApiError(400, "Habit ID is required");
@@ -42,18 +42,27 @@ const { id } = req.params;
 
     let totalCompletions = 0
 
-    for(const log of habitLogs){
-        if(log.completed === true){
+    for (const log of habitLogs) {
+        if (log.completed === true) {
             totalCompletions++
         }
     }
 
+    let completionRate = 0;
+    let totalLogs = habitLogs.length;
+
+    if (totalLogs === 0) {
+        completionRate = 0;
+    } else {
+        completionRate = totalCompletions / totalLogs;
+    }
+
     return res.status(200)
-    .json(new ApiResponse(
-        200,
-        {"currentStreak": currentStreak, "longestStreak": longestStreak, "totalCompletions": totalCompletions},
-        "Analytics fetched Successfully"
-    ))
+        .json(new ApiResponse(
+            200,
+            { "currentStreak": currentStreak, "longestStreak": longestStreak, "totalCompletions": totalCompletions, "completionRate": completionRate },
+            "Analytics fetched Successfully"
+        ))
 
 })
 
