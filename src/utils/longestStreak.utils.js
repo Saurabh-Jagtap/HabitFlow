@@ -8,13 +8,13 @@ export const calculateLongestStreak = (habitLogs = []) => {
     // Track the maximum count reached at any point
     // Return the maximum streak
 
-    habitLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sortedLogs = habitLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     let streak = 0;
     let maxStreak = 0;
     let previousDate = null;
 
-    for (const log of habitLogs) {
+    for (const log of sortedLogs) {
 
         let currentDate = new Date(log.date);
         currentDate.setHours(0, 0, 0, 0);
