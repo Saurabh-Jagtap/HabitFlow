@@ -206,10 +206,55 @@ const userDetails = asyncHandler(async (req, res) => {
 
 })
 
+const updateProfile = asyncHandler (async (req, res) => {
+    const {fullname, username} = req.body;
+    const userId = req.user._id;
+
+    if(!fullname && !username){
+        throw new ApiError(400, "No fields provided for update")
+    }
+
+    if(fullname !== undefined && fullname.trim() === ""){
+        throw new ApiError(400, "fullname cannot be empty")
+    }
+
+    if(username !== undefined && username.trim() === ""){
+        throw new ApiError(400, "Username cannot be empty")
+    }
+
+    let updatefields = {}
+
+    if(fullname !== undefined){
+        updatefields.fullname = fullname.trim()
+    }
+
+    if(username !== undefined){
+        updatefields.username = username.trim()
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        {_id: userId},
+        {$set: updatefields},
+        {new: true}
+    ).select("-password -refreshToken")
+
+    if(!updatedUser){
+        throw new ApiError(404, "User not found")
+    }
+
+    res.status(200)
+    .json(new ApiResponse(
+        200,
+        updatedUser,
+        "Profile updated Successfully"
+    ))
+})
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
-    userDetails
+    userDetails,
+    updateProfile
 }
