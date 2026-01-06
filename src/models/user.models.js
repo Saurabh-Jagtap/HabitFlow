@@ -22,7 +22,8 @@ const userSchema = new Schema({
         required: true
     },
     avatar: {
-        type: String   //Cloudinary link
+        type: String,   //Cloudinary link
+        default: null
     },
     refreshToken: {
         type: String

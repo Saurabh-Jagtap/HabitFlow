@@ -1,11 +1,13 @@
 import multer from 'multer'
+import crypto from 'crypto';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './public/temp')
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname)
+    const uniqueName = crypto.randomBytes(16).toString("hex") + "-" + file.originalname
+    cb(null, uniqueName)
   }
 })
 

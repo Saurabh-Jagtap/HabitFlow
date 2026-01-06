@@ -14,7 +14,8 @@ const uploadonCloudinary = async (localFilePath) => {
     const response = await cloudinary.uploader.upload(
       localFilePath,
       {
-        resource_type: 'auto'
+        resource_type: 'image',
+        folder: "habitFlow/avatars"
       }
     )
     fs.unlinkSync(localFilePath);

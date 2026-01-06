@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import uploadonCloudinary from "../utils/Cloudinary.js";
+import { v2 as cloudinary } from 'cloudinary';
 import jwt from 'jsonwebtoken'
 
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -57,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
         password,
         fullname,
-        avatar: avatar?.url || ""
+        avatar: avatar? avatar.secure_url : null
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
@@ -126,12 +127,12 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const incomingRefreshToken = req.cookies.refreshToken
 
-    if(incomingRefreshToken){
+    if (incomingRefreshToken) {
         try {
             const decoded = jwt.sign(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
-            await User.findByIdAndUpdate(decoded._id, 
-                {$unset: {refreshToken: 1}}, 
-                {new: true}
+            await User.findByIdAndUpdate(decoded._id,
+                { $unset: { refreshToken: 1 } },
+                { new: true }
             )
         } catch (error) {
             console.log(error)
@@ -196,7 +197,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const userDetails = asyncHandler(async (req, res) => {
 
-    if(!req.user){
+    if (!req.user) {
         throw new ApiError(401, "Unauthorized")
     }
 
@@ -206,47 +207,103 @@ const userDetails = asyncHandler(async (req, res) => {
 
 })
 
-const updateProfile = asyncHandler (async (req, res) => {
-    const {fullname, username} = req.body;
+const updateProfile = asyncHandler(async (req, res) => {
+    const { fullname, username } = req.body;
     const userId = req.user._id;
 
-    if(!fullname && !username){
+    if (!fullname && !username) {
         throw new ApiError(400, "No fields provided for update")
     }
 
-    if(fullname !== undefined && fullname.trim() === ""){
+    if (fullname !== undefined && fullname.trim() === "") {
         throw new ApiError(400, "fullname cannot be empty")
     }
 
-    if(username !== undefined && username.trim() === ""){
+    if (username !== undefined && username.trim() === "") {
         throw new ApiError(400, "Username cannot be empty")
     }
 
     let updatefields = {}
 
-    if(fullname !== undefined){
+    if (fullname !== undefined) {
         updatefields.fullname = fullname.trim()
     }
 
-    if(username !== undefined){
+    if (username !== undefined) {
         updatefields.username = username.trim()
     }
 
     const updatedUser = await User.findByIdAndUpdate(
-        {_id: userId},
-        {$set: updatefields},
-        {new: true}
+        { _id: userId },
+        { $set: updatefields },
+        { new: true }
     ).select("-password -refreshToken")
 
-    if(!updatedUser){
+    if (!updatedUser) {
         throw new ApiError(404, "User not found")
     }
 
     res.status(200)
+        .json(new ApiResponse(
+            200,
+            updatedUser,
+            "Profile updated Successfully"
+        ))
+})
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    // file comes from req.file
+    // user comes from req.user
+    // Old avatar file must be deleted before updating
+    // after upload cloudinary returns img url
+
+    if (!req.file) {
+        throw new ApiError(400, "Avatar file is required")
+    }
+
+    const user = req.user
+
+    // Delete old avatar if exists
+    if (user.avatar) {
+        const publicId = user.avatar.split("/").slice(-2).join("/").split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+    }
+
+    // Upload new avatar after deletion
+    const updatedAvatar = await uploadonCloudinary(req.file.path)
+
+    if (!updateAvatar) {
+        throw new ApiError(500, "Avatar upload failed")
+    }
+
+    user.avatar = updatedAvatar.secure_url
+    await user.save({ validateBeforeSave: false })
+
+    return res.status(200)
+        .json(new ApiResponse(200,
+            user,
+            "Avatar updated Successfully")
+        )
+})
+
+const removeAvatar = asyncHandler(async (req, res) => {
+    const user = req.user;
+
+    if(!user.avatar){
+        throw new ApiError(400, "No avatar to remove")
+    }
+
+    const publicId = user.avatar.split("/").slice(-2).join("/").split(".")[0]; 
+    await cloudinary.uploader.destroy(publicId);
+
+    user.avatar = null;
+    await user.save({validateBeforeSave: false});
+
+    return res.status(200)
     .json(new ApiResponse(
         200,
-        updatedUser,
-        "Profile updated Successfully"
+        user,
+        "Avatar removed successfully"
     ))
 })
 
@@ -256,5 +313,7 @@ export {
     logoutUser,
     refreshAccessToken,
     userDetails,
-    updateProfile
+    updateProfile,
+    updateAvatar,
+    removeAvatar
 }
