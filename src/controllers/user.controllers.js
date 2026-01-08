@@ -1,3 +1,5 @@
+import { Habit } from "../models/habit.models.js";
+import { HabitLog } from "../models/habitLog.models.js";
 import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -139,15 +141,15 @@ const logoutUser = asyncHandler(async (req, res) => {
         }
     }
 
-    const options = {
+    const cookieOptions = {
         httpOnly: true,
-        secure: true,
-        sameSite: "none"
-    }
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
 
     res.status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
         .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
@@ -359,6 +361,36 @@ const updatePassword = asyncHandler(async (req, res) => {
 
 })
 
+const deleteUser = asyncHandler(async (req, res) => {
+
+    if(!req.user || !req.user._id){
+        throw new ApiError(401, "Unauthorized request")
+    }
+
+    try {
+        await Habit.deleteMany({ userId: req.user._id })
+        await HabitLog.deleteMany({ userId: req.user._id })
+        await User.deleteOne({ _id: req.user._id })
+    } catch (error) {
+        throw new ApiError(500, "Failed to delete completely")
+    }
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    };
+
+    return res.status(200)
+        .clearCookie("accessToken", cookieOptions)
+        .clearCookie("refreshToken", cookieOptions)
+        .json(new ApiResponse(
+            200,
+            null,
+            "Account deleted successfully"
+        ))
+})
+
 export {
     registerUser,
     loginUser,
@@ -368,5 +400,6 @@ export {
     updateProfile,
     updateAvatar,
     removeAvatar,
-    updatePassword
+    updatePassword,
+    deleteUser
 }
