@@ -2,6 +2,7 @@ import { Router } from "express";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { deleteUser, forgotPassword, loginUser, logoutUser, refreshAccessToken, registerUser, removeAvatar, resetPassword, updateAvatar, updatePassword, updateProfile, userDetails } from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { emailLimiter, loginLimiter } from "../middlewares/limiter.middlewares.js";
 
 const router = Router()
 
@@ -12,9 +13,9 @@ router.route('/register').post(
     registerUser
 )
 
-router.route('/login').post(loginUser)
+router.route('/login').post(loginLimiter ,loginUser)
 router.route('/logout').post(logoutUser)
-router.route('/forgot-password').post(forgotPassword)
+router.route('/forgot-password').post(emailLimiter ,forgotPassword)
 router.route('/reset-password/:token').post(resetPassword)
 
 // secured routes

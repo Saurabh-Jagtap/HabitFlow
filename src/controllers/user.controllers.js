@@ -9,6 +9,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import jwt from 'jsonwebtoken'
 import crypto from "crypto"
 import { sendEmail } from "../utils/sendEmail.js";
+import { isEmailValid } from "../utils/emailValidation.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -39,10 +40,17 @@ const registerUser = asyncHandler(async (req, res) => {
     const { username, email, password, fullname } = req.body
 
     if (
-        [username, email, password].some((field) => field?.trim() === "")
+        [username, email, password, fullname].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required")
     }
+
+    if (!isEmailValid(email)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "Invalid email format" 
+    });
+  }
 
     const existedUser = await User.findOne({ email })
 
