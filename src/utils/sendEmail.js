@@ -1,38 +1,27 @@
 import axios from 'axios';
 
-export const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, text }) => {
+
   const data = {
-    sender: {
-      name: "HabitFlow App",
-      email: process.env.SMTP_USER
+    service_id: process.env.EMAILJS_SERVICE_ID,
+    template_id: process.env.EMAILJS_TEMPLATE_ID,
+    user_id: process.env.EMAILJS_PUBLIC_KEY,
+    accessToken: process.env.EMAILJS_PRIVATE_KEY,
+    template_params: {
+      email: to,           // Maps to {{email}} in "To Email" setting & Template body
+      link: text,          // Maps backend 'resetUrl' to {{link}} in Template
+      company: "HabitFlow",// Maps to [Company Name] in your template
     },
-    replyTo: {
-      email: process.env.SMTP_USER,
-      name: "HabitFlow Support"
-    },
-    to: [
-      {
-        email: to,
-      },
-    ],
-    subject: subject,
-    htmlContent: html,
   };
 
   try {
-    await axios.post('https://api.brevo.com/v3/smtp/email', data, {
+    await axios.post('https://api.emailjs.com/api/v1.0/email/send', data, {
       headers: {
-        'api-key': process.env.BREVO_API_KEY,
-        'content-type': 'application/json',
-        'accept': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
-    console.log("Email sent successfully via Brevo!");
+    console.log("Email sent successfully via EmailJS!");
   } catch (error) {
-    console.error("Brevo Email Error:", error.response?.data || error.message);
-    // Helpful log to see why it failed
-    if (error.response?.status === 401) {
-      console.error("Check your BREVO_API_KEY!");
-    }
+    console.error("EmailJS Error:", error.response?.data || error.message);
   }
 };

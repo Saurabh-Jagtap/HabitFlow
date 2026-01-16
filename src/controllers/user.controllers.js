@@ -445,27 +445,11 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
 
-    const emailHtml = `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2 style="color: #4A90E2;">Reset Your Password</h2>
-    <p>Hello,</p>
-    <p>You requested to reset your password for HabitFlow.</p>
-    <p style="margin: 20px 0;">
-      <a href="${resetUrl}" style="background-color: #4A90E2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        Click Here to Reset
-      </a>
-    </p>
-    <p>If you didn't ask for this, please ignore this email.</p>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-    <p style="font-size: 12px; color: #888;">HabitFlow Inc. • 123 Developer Lane, Code City</p>
-  </div>
-`;
-
     try {
         await sendEmail({
             to: user.email,
             subject: "Reset your HabitFlow password",
-            html: emailHtml,
+            text: resetUrl, 
         });
     } catch (error) {
 
