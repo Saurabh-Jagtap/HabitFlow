@@ -57,5 +57,6 @@ npm run start
 | PATCH | /api/v1/user/reset-password/:token | Set new password |
 | GET | /api/v1/habits | Fetch all user habits (Protected) |
 
-
+🔗 Deployment
+Deployed live on Render: [https://habitflow-backend-gf9f.onrender.com]
 
