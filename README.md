@@ -62,17 +62,56 @@ npm run dev
 # Production mode
 npm run start
 
-📡 API Endpoints (Brief)
+## 📡 API Endpoints
 
 | Method | Endpoint | Description |
-| --- | --- | --- |
-| POST | /api/v1/user/register | Create a new user account |
-| POST | /api/v1/user/login | Login and receive JWT |
-| POST | /api/v1/user/forgot-password | Trigger reset password email (Rate Limited) |
-| PATCH | /api/v1/user/reset-password/:token | Set new password |
-| GET | /api/v1/habits | Fetch all user habits (Protected) |
+| :--- | :--- | :--- |
+| **Auth** | | |
+| `POST` | `/api/v1/user/register` | Create a new user account |
+| `POST` | `/api/v1/user/login` | Login & receive Access/Refresh Tokens |
+| `POST` | `/api/v1/user/forgot-password` | Trigger reset email (Rate Limited) |
+| **Habits** | | |
+| `GET` | `/api/v1/habits` | Fetch all active habits |
+| `POST` | `/api/v1/habits` | Create a new habit |
+| `PATCH` | `/api/v1/habits/:id` | Update habit details |
+| `POST` | `/api/v1/habits/:id/log` | Mark habit as done (Updates streak) |
+| **Analytics** | | |
+| `GET` | `/api/v1/analytics/dashboard` | Fetch weekly progress & completion stats |
 
+## 📂 Project Structure
 
+```bash
+├── src/
+│   ├── index.js            # App Entry Point (Server execution)
+│   ├── app.js              # Express App Setup & Middleware config
+│   ├── constants.js        # Global Constants (DB Name, Enums)
+│   ├── controllers/        # Business Logic & Request Handling
+│   │   ├── user/           # Auth & Profile Logic
+│   │   ├── habit/          # CRUD Operations for Habits
+│   │   ├── habitLog/       # Daily Tracking Logic
+│   │   └── analytics/      # Data Aggregation for Dashboards
+│   ├── middlewares/        # Custom Interceptors
+│   │   ├── auth/           # JWT Verification (Protected Routes)
+│   │   ├── multer/         # File Upload Handling
+│   │   └── limiter/        # Rate Limiting Configuration
+│   ├── models/             # Mongoose Schemas (Data Layer)
+│   │   ├── user/
+│   │   ├── habit/
+│   │   └── habitLog/
+│   ├── routes/             # API Endpoint Definitions
+│   │   ├── user/
+│   │   ├── habit/
+│   │   └── analytics/
+│   └── utils/              # Helper Functions & Wrappers
+│       ├── ApiError.js     # Standardized Error Class
+│       ├── ApiResponse.js  # Standardized Success Response
+│       ├── asyncHandler.js # Try/Catch Wrapper for Async Ops
+│       ├── Cloudinary.js   # Image Upload Service
+│       ├── sendEmail.js    # EmailJS Integration
+│       └── streak/         # Habit Streak Calculation Logic
+├── .env.example            # Environment Variable Template
+└── package.json            # Dependencies & Scripts
+```
 
 ## 🚀 Deployment
 
