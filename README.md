@@ -2,6 +2,8 @@
 
 The robust server-side application powering **HabitFlow**, a full-stack habit tracking platform. Built with Node.js and Express, focused on security, scalability, and performance.
 
+> **Looking for the Frontend?** > Check out the [HabitFlow Frontend Repository](https://github.com/Saurabh-Jagtap/HabitFlow-Frontend.git) to see the **User Interface and React code**.
+
 ## 🌟 Key Features
 
 * **🔐 Secure Authentication:** Full Signup/Login flow using **JWT** (JSON Web Tokens) and **BCrypt** for password hashing.
@@ -23,7 +25,7 @@ The robust server-side application powering **HabitFlow**, a full-stack habit tr
 To run this project, you will need to add the following environment variables to your `.env` file:
 
 ```env
-PORT=8000
+PORT=5000
 MONGODB_URI=your_mongodb_connection_string
 CORS_ORIGIN=
 
@@ -70,5 +72,10 @@ npm run start
 | PATCH | /api/v1/user/reset-password/:token | Set new password |
 | GET | /api/v1/habits | Fetch all user habits (Protected) |
 
-🔗 Deployment
-Deployed live on Render: `https://habitflow-backend-gf9f.onrender.com`
+
+
+## 🚀 Deployment
+
+The application is deployed on Render and available for public access.
+
+🔗 **Live Link:** [View Live Demo 🚀](https://habitflow-backend-gf9f.onrender.com)
